@@ -1,0 +1,53 @@
+---
+title: "Curso de R"
+author: "Jhanelly Chalá"
+output: 
+   rmdformats::readthedown:
+    self_contained: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Importar datos
+
+En R se pueden cargar datos de diferentes tipos de archivos como por ejemplo:
+
+|       |                            |
+|-------|----------------------------|
+| .csv  | Datos separados por comas  |
+| .dta  | Datos de Stata             |
+| .sav  | Datos provenientes de SPSS |
+| .xlsx | Datos excel                |
+
+Y muchos más!!
+
+**¿ Por qué en importante conocer la ruta de trabajo?**
+
+Trabajar en un espacio de trabajo predefinido facilita la importación de datos, dado que no es necesario especificar la ruta completa del archivo en cada importación. Por tal motivo, se recomienda almacenar toda la información en una misma ruta.\
+\
+Otra recomendación útil es organizar tus tareas, trabajos e investigaciones en proyectos separados. De esta manera, cada vez que abras una sesión en un proyecto específico, la ruta de trabajo ya estará predefinida según la ubicación donde se almacene dicho proyecto. Esto facilita el manejo de archivos y mejora la eficiencia en el acceso a los recursos necesarios.
+
+**Conoce tu diractorio de trabajo**:
+
+```{r echo=TRUE}
+getwd() #Obtendras una salida parecida a esta:
+
+```
+
+**¿Puedo cambiar mi directorio de trabajo?**
+
+Si deseas usar otra ruta distinta para importar tus archivos lo puedes hacer con el siguiente comando:
+
+```{r}
+setwd("C:/Users/USUARIO/Documents/Publicaciones/CURSO_R")
+```
+
+**NOTAS:**
+
+1.  Recuerda que tienes que usar **\\\\** o **/**, además toda la ruta debe estar dentro de las comillas.
+
+2.  Al iniciar una nueva sesión, la ruta de trabajo se restablecerá\
+
+Si deseas prácticar con los datos usados aquí, puedes descargarlos del siguiente repositorio:
