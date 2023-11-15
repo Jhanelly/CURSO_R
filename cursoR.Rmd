@@ -7,7 +7,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
 ```
 
 # Importar datos
@@ -21,9 +21,9 @@ En R se pueden cargar datos de diferentes tipos de archivos como por ejemplo:
 | .sav  | Datos provenientes de SPSS |
 | .xlsx | Datos excel                |
 
-Y muchos más!!
+¡Y muchos más, continua leyendo!
 
-**¿ Por qué en importante conocer la ruta de trabajo?**
+**¿Por qué en importante conocer la ruta de trabajo?**
 
 Trabajar en un espacio de trabajo predefinido facilita la importación de datos, dado que no es necesario especificar la ruta completa del archivo en cada importación. Por tal motivo, se recomienda almacenar toda la información en una misma ruta.\
 \
@@ -50,4 +50,149 @@ setwd("C:/Users/USUARIO/Documents/Publicaciones/CURSO_R")
 
 2.  Al iniciar una nueva sesión, la ruta de trabajo se restablecerá\
 
-Si deseas prácticar con los datos usados aquí, puedes descargarlos del siguiente repositorio:
+Si deseas prácticar con los datos usados aquí, puedes descargarlos [aquí](https://github.com/Jhanelly/CURSO_R.git)
+
+### **Importación de datos tabulares .csv**
+
+No es necesario instalar paquetes adicionales para importar datos de extensión .csv
+Se puede hacer desde el paquete base que contiene R.
+
+Prueba lo siguiente:
+```{r eval=FALSE, eval=FALSE}
+read.csv("Nombre_del_archivo.csv", col_names = FALSE, 
+         skip = n)
+```
+
+`col_names=TRUE:` Indica que la primera fila corresponde a los nombres de las columnas, 
+`skip=n`Omite las primeras 'n' filas del archivo antes de comenzar a leer los datos.
+
+Recuerda que al estar el archivo dentro de tu ruta de trabajo no necesitas usar toda la ruta del archivo.
+En caso de que desees importar el archivo desde otra carpeta sin necesidad de cambiar la ruta de trabajo, podrías probar con algo como esto:
+
+
+**NOTA:** 
+
+Puedes utiliza la función `choose.files()` para encontrar la ruta de tu archivo con mayor facilidad.
+
+
+Si estas trabajando con grandes conjuntos de datos, puedes optar por utilizar el paquete `data.table`, el cual permite optimizar el tiempo y memoria al leer los datos.
+
+```{r}
+#install.packages("data.table")
+library(data.table)
+dt <- fread("Nombre_del_archivo.csv")
+```
+
+### **Importar datos .dta**
+
+Para importar datos de extensión .dta o .sav se necesita el siguiente paquete:
+```{r}
+#install.packages("haven")
+library(haven)
+
+read_dta("Nombre_del_archivo.dta")
+```
+
+### **Importar datos .sav**
+
+```{r, eval =FALSE}
+library(haven)
+read_spss("Nombre_del_archivo.sav") 
+```
+
+
+### **Importar datos de excel**
+
+Para importar datos de excel puedes usar los paquetes `readxl` o `openxlsx`
+
+```{r}
+#install.packages("readxl") #Permite importar archivos
+#install.packages("openxlsx") #Permite importar y exportar
+library(readxl)
+library(openxlsx) 
+
+```
+Probemos con el paquete readxl:
+```{r}
+read_excel("Nombre_del_archivo.xlsx", sheet = 1)
+```
+Con el argumento `sheet` puedes especificar el número de hoja a importar o bien el nombre de la misma, ejm: "Precios"
+
+**¿Se puede importar más de un archivo a la vez?**
+
+En nuestros proyectos nos podemos encontrar que deseamos importar más de un archivo, sería engorroso importar uno por uno, sin embargo, no te debes preocupar, las funciones de R se crearon para ayudar!!
+
+**CONSEJO:** Puedes optar por crear en tu ruta una carpeta que contenga especificamente los archivos con la misma extensión que deseas de importar: 
+
+Para el ejemplo la nueva carpeta se denomina "bases".
+```{r}
+files<-list.files(path = "bases",full.names = TRUE)
+```
+`list.files():` Esta es una función en R que se utiliza para listar los nombres de los archivos en un directorio especificado.
+
+`path = "bases":` Este argumento indica el directorio del cual se quieren listar los archivos. En este caso, está buscando en el directorio llamado "bases". Si este directorio está dentro del directorio de trabajo actual, buscará allí; de lo contrario, necesitarás proporcionar una ruta completa o relativa.
+
+`full.names = TRUE:` Este argumento especifica que los nombres de los archivos devueltos deben incluir sus rutas completas. Si estuviera en FALSE (que es el valor predeterminado), list.files() devolvería solo los nombres de los archivos sin la ruta.
+
+Hasta ahora solo hemos guardado los nombres de los archivos, para importarlos puedes hacerlo con el siguiente comando:
+
+```{r}
+bases<-lapply(files,read_xls, sheet=1) 
+```
+
+El código está aplicando la función read_xls a cada uno de los archivos especificados en files, leyendo la primera hoja de cada archivo Excel y almacenando los resultados en la variable bases.
+
+Extraiga los archivos almacenados en la lista:
+```{r eval=FALSE}
+electricidad <- bases[[1]]
+pib <- bases[[2]] 
+```
+Estas líneas de código están separando los DataFrames individuales almacenados en la lista bases en variables separadas para su uso y análisis más fácil. 
+
+### **Datos provenientes de Internet**
+
+R brinda la facilidad de poder descargar archivos de internet con comandos, ¡Que locura!
+
+Imagina que los datos que necesitas se encuentran en el siguiente url:
+```{r}
+url="https://raw.githubusercontent.com/percepcioneseconomicas/indices/main/BC%20Economia%20Internacional.csv2"
+
+#Cargar los datos
+read_csv(url)
+```
+
+
+### **Web Scraping**
+
+El web scraping se utiliza cuando los datos no están disponibles en un formato fácilmente descargable, como un archivo CSV, sino que están incrustados en el HTML de una página web.
+
+Las APIs (Interfaces de Programación de Aplicaciones) son conjuntos de reglas que permiten a las aplicaciones interactuar entre sí. Actúan como intermediarios, facilitando el acceso a funciones o datos de otros servicios de forma estandarizada. Su uso es fundamental para integrar y ampliar las capacidades de las aplicaciones de software.
+
+
+**API Banco Mundial**
+
+Cargar e instalar el paquete necesario:
+
+
+```{r}
+#install.packages("wbstats")
+library(wbstats)
+```
+
+Puedes utrilizar el paquete de la siguiente manera:
+
+```{r}
+#Indicadores disponibles
+wbindicators() 
+#Para obtener los indicadores en español:
+wbindicators(lang = "es") 
+#Datos relacionados con turismo
+wbsearch(pattern = "turismo")
+#Descarga los datos que necesites
+turismo <- wb_data(indicator = "ST.INT.ARVL", country = "EC",
+                   start_date = 1995, end_date = 2020)
+
+#Si deseas de todos los países y todos los años disponibles, no es necesario que se especifiquen los argumentos country, start_date y end_date.
+```
+
+
