@@ -1,16 +1,43 @@
 ---
-title: "Curso de R"
+title: "Curso de Importación y Manipulación de datos con R"
 author: "Jhanelly Chalá"
 output: 
    rmdformats::readthedown:
     self_contained: false
 ---
 
+```{=html}
+<style>
+
+h1.title {
+  text-align: center;
+}
+
+body {
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+</style>
+```
+
+------------------------------------------------------------------------
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
 ```
 
-# Importar datos
+# Importar datos con R
+
+![](https://d33wubrfki0l68.cloudfront.net/571b056757d68e6df81a3e3853f54d3c76ad6efc/32d37/diagrams/data-science.png){alt="Flujo de Trabajo para Analítica de Datos en R: Inspirado por las Técnicas de Wickham y Grolemund" style="display: block; margin-left: auto; margin-right: auto;" width="60%"}
+
+::: {style="text-align: center;"}
+Flujo de Trabajo para Analítica de Datos en R: Inspirado por las Técnicas de Wickham y Grolemund
+:::
+
+La imagen presentada ilustra un modelo de herramientas necesarias para trabajar con datos, propuesto por Hadley Wickham & Garret Grolemund.
+
+En esta primera sección del curso cubriremos la importación de datos, una acción fundamental para poder hacer análisis de datos.
 
 En R se pueden cargar datos de diferentes tipos de archivos como por ejemplo:
 
@@ -54,26 +81,22 @@ Si deseas prácticar con los datos usados aquí, puedes descargarlos [aquí](htt
 
 ### **Importación de datos tabulares .csv**
 
-No es necesario instalar paquetes adicionales para importar datos de extensión .csv
-Se puede hacer desde el paquete base que contiene R.
+No es necesario instalar paquetes adicionales para importar datos de extensión .csv Se puede hacer desde el paquete base que contiene R.
 
 Prueba lo siguiente:
+
 ```{r eval=FALSE, eval=FALSE}
 read.csv("Nombre_del_archivo.csv", col_names = FALSE, 
          skip = n)
 ```
 
-`col_names=TRUE:` Indica que la primera fila corresponde a los nombres de las columnas, 
-`skip=n`Omite las primeras 'n' filas del archivo antes de comenzar a leer los datos.
+`col_names=TRUE:` Indica que la primera fila corresponde a los nombres de las columnas, `skip=n`Omite las primeras 'n' filas del archivo antes de comenzar a leer los datos.
 
-Recuerda que al estar el archivo dentro de tu ruta de trabajo no necesitas usar toda la ruta del archivo.
-En caso de que desees importar el archivo desde otra carpeta sin necesidad de cambiar la ruta de trabajo, podrías probar con algo como esto:
+Recuerda que al estar el archivo dentro de tu ruta de trabajo no necesitas usar toda la ruta del archivo. En caso de que desees importar el archivo desde otra carpeta sin necesidad de cambiar la ruta de trabajo, podrías probar con algo como esto:
 
-
-**NOTA:** 
+**NOTA:**
 
 Puedes utiliza la función `choose.files()` para encontrar la ruta de tu archivo con mayor facilidad.
-
 
 Si estas trabajando con grandes conjuntos de datos, puedes optar por utilizar el paquete `data.table`, el cual permite optimizar el tiempo y memoria al leer los datos.
 
@@ -86,6 +109,7 @@ dt <- fread("Nombre_del_archivo.csv")
 ### **Importar datos .dta**
 
 Para importar datos de extensión .dta o .sav se necesita el siguiente paquete:
+
 ```{r}
 #install.packages("haven")
 library(haven)
@@ -100,7 +124,6 @@ library(haven)
 read_spss("Nombre_del_archivo.sav") 
 ```
 
-
 ### **Importar datos de excel**
 
 Para importar datos de excel puedes usar los paquetes `readxl` o `openxlsx`
@@ -112,22 +135,27 @@ library(readxl)
 library(openxlsx) 
 
 ```
+
 Probemos con el paquete readxl:
+
 ```{r}
 read_excel("Nombre_del_archivo.xlsx", sheet = 1)
 ```
+
 Con el argumento `sheet` puedes especificar el número de hoja a importar o bien el nombre de la misma, ejm: "Precios"
 
 **¿Se puede importar más de un archivo a la vez?**
 
 En nuestros proyectos nos podemos encontrar que deseamos importar más de un archivo, sería engorroso importar uno por uno, sin embargo, no te debes preocupar, las funciones de R se crearon para ayudar!!
 
-**CONSEJO:** Puedes optar por crear en tu ruta una carpeta que contenga especificamente los archivos con la misma extensión que deseas de importar: 
+**CONSEJO:** Puedes optar por crear en tu ruta una carpeta que contenga especificamente los archivos con la misma extensión que deseas de importar:
 
 Para el ejemplo la nueva carpeta se denomina "bases".
+
 ```{r}
 files<-list.files(path = "bases",full.names = TRUE)
 ```
+
 `list.files():` Esta es una función en R que se utiliza para listar los nombres de los archivos en un directorio especificado.
 
 `path = "bases":` Este argumento indica el directorio del cual se quieren listar los archivos. En este caso, está buscando en el directorio llamado "bases". Si este directorio está dentro del directorio de trabajo actual, buscará allí; de lo contrario, necesitarás proporcionar una ruta completa o relativa.
@@ -143,17 +171,20 @@ bases<-lapply(files,read_xls, sheet=1)
 El código está aplicando la función read_xls a cada uno de los archivos especificados en files, leyendo la primera hoja de cada archivo Excel y almacenando los resultados en la variable bases.
 
 Extraiga los archivos almacenados en la lista:
+
 ```{r eval=FALSE}
 electricidad <- bases[[1]]
 pib <- bases[[2]] 
 ```
-Estas líneas de código están separando los DataFrames individuales almacenados en la lista bases en variables separadas para su uso y análisis más fácil. 
+
+Estas líneas de código están separando los DataFrames individuales almacenados en la lista bases en variables separadas para su uso y análisis más fácil.
 
 ### **Datos provenientes de Internet**
 
 R brinda la facilidad de poder descargar archivos de internet con comandos, ¡Que locura!
 
 Imagina que los datos que necesitas se encuentran en el siguiente url:
+
 ```{r}
 url="https://raw.githubusercontent.com/percepcioneseconomicas/indices/main/BC%20Economia%20Internacional.csv2"
 
@@ -161,18 +192,15 @@ url="https://raw.githubusercontent.com/percepcioneseconomicas/indices/main/BC%20
 read_csv(url)
 ```
 
-
 ### **Web Scraping**
 
 El web scraping se utiliza cuando los datos no están disponibles en un formato fácilmente descargable, como un archivo CSV, sino que están incrustados en el HTML de una página web.
 
 Las APIs (Interfaces de Programación de Aplicaciones) son conjuntos de reglas que permiten a las aplicaciones interactuar entre sí. Actúan como intermediarios, facilitando el acceso a funciones o datos de otros servicios de forma estandarizada. Su uso es fundamental para integrar y ampliar las capacidades de las aplicaciones de software.
 
-
 **API Banco Mundial**
 
 Cargar e instalar el paquete necesario:
-
 
 ```{r}
 #install.packages("wbstats")
@@ -195,4 +223,22 @@ turismo <- wb_data(indicator = "ST.INT.ARVL", country = "EC",
 #Si deseas de todos los países y todos los años disponibles, no es necesario que se especifiquen los argumentos country, start_date y end_date.
 ```
 
+# Manipulación de datos con R
 
+Habiendo importado nuestros datos en R, estamos listos para el siguiente paso en nuestro flujo: la transformación de datos. Aunque el ordenamiento y limpieza ('tidy') son cruciales, nos centraremos primero en transformar los datos, integrando gradualmente el proceso 'tidy' para demostrar su importancia en el análisis de datos.
+
+Dentro de R, dplyr es un paquete esencial para la manipulación de datos. Los verbos principales que integran sus funciones son:
+
+1.  `filter()`,
+
+2.  `select()`,
+
+3.  `arrange()`,
+
+4.  `mutate()`,
+
+5.  `summarise()` y
+
+6.  `group_by()`.
+
+Cada una de estas funciones juega un papel esencial en la transformación y análisis de datos. Además de estas herramientas fundamentales, también exploraremos funciones adicionales dentro de dplyr para enriquecer tu comprensión y habilidades en el manejo de este paquete.
