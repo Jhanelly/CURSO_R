@@ -186,10 +186,10 @@ R brinda la facilidad de poder descargar archivos de internet con comandos, ¡Qu
 Imagina que los datos que necesitas se encuentran en el siguiente url:
 
 ```{r}
-url="https://raw.githubusercontent.com/percepcioneseconomicas/indices/main/BC%20Economia%20Internacional.csv2"
+url <- "https://raw.githubusercontent.com/zkamvar/r-novice-gapminder/main/episodes/data/gapminder_wide.csv"
 
 #Cargar los datos
-read_csv(url)
+dato <- read_csv(url)
 ```
 
 ### **Web Scraping**
@@ -227,7 +227,25 @@ turismo <- wb_data(indicator = "ST.INT.ARVL", country = "EC",
 
 Habiendo importado nuestros datos en R, estamos listos para el siguiente paso en nuestro flujo: la transformación de datos. Aunque el ordenamiento y limpieza ('tidy') son cruciales, nos centraremos primero en transformar los datos, integrando gradualmente el proceso 'tidy' para demostrar su importancia en el análisis de datos.
 
-Dentro de R, dplyr es un paquete esencial para la manipulación de datos. Los verbos principales que integran sus funciones son:
+Empecemos por conocer otro tipo de marco de datos denominado **tibble**. Los tibbles son una versión moderna y mejorada de los data frames en R, diseñados específicamente para el ecosistema Tidyverse. Aunque similares en estructura, los tibbles mejoran la experiencia del usuario con una impresión más amigable en la consola, manejo más intuitivo de las variables no estándar y una mayor compatibilidad con los datos almacenados en formatos diversos. Estas características hacen de los tibbles una opción preferida para el análisis de datos en R.
+
+Almacenemos nuestro datos en un objeto tibble:
+
+```{r}
+library(tibble)
+datos <- as_tibble(data1) #convertir a un tibble
+glimpse(datos) #similar a str() pero es útil con los tibble
+```
+
+Una vez obtenido los datos en el formato que necesitamos, podemos empezar.
+
+Dentro de R, dplyr es un paquete esencial para la manipulación de datos, este además de tibble forma parte del mundo tidyverse. 
+```{r}
+#install.packages("dplyr")
+library(dplyr)
+```
+
+Los verbos principales que integran sus funciones son:
 
 1.  `filter()`,
 
@@ -242,3 +260,172 @@ Dentro de R, dplyr es un paquete esencial para la manipulación de datos. Los ve
 6.  `group_by()`.
 
 Cada una de estas funciones juega un papel esencial en la transformación y análisis de datos. Además de estas herramientas fundamentales, también exploraremos funciones adicionales dentro de dplyr para enriquecer tu comprensión y habilidades en el manejo de este paquete.
+
+
+`filter()`permite crear un sub-conjunto de las observaciones de nuestro datos.
+
+-   Comparaciones
+
+Counto estándar: \>, \>=, \<, \<=, !=(no igual) y ==(igual)
+
+```{r}
+#Filtra por el continente que sea Africa
+datos %>% filter(continent=="Africa")
+#Filtra las observaciones de gdpPercap_1952 que sean mayores o iguales a 5000
+datos %>% filter(gdpPercap_1952>=5000)
+#Filtra las observaciones de gdpPercap_1952 que tengan valores NA
+datos %>% filter(is.na(gdpPercap_1952))
+
+#Filtrar por exepción
+#Filtra observaciones en las que el país NO sea Algeria.
+datos %>% filter(!country=="Algeria")
+```
+
+El operador %>%, conocido como el operador de tubería (pipe operator), Permite encadenar múltiples funciones de manera clara y legible, pasando el resultado de una función como primer argumento a la siguiente. Forma parte del paquete `magrittr` pero si ya has cargado `dplyr` previamente, tendrás el operador `%>%`  disponible automáticamente.
+
+-   Operadores lógicos
+
+El operador | es un operador lógico "OR" que permite incluir filas que cumplan cualquiera de las dos condiciones.
+
+```{r}
+datos %>% filter(country=="Ecuador" | Provincia=="Chile")
+
+#Otra opción es:
+#Operador %in%
+datos %>% filter(country %in% c("Ecuador", "Chile", "Mexico"))
+
+```
+
+El operador &, que es un operador lógico "AND", lo que significa que ambas condiciones deben ser verdaderas para que una fila sea incluida en el resultado.
+```{r}
+datos %>% filter(continent=="Europe"& gdpPercap_1952<5000)
+
+#Puedes utilizar:
+datos %>% filter(continent=="Europe", gdpPercap_1952<5000)
+```
+
+Dentro de la manipulación de casos tambien es útil `distinct()` para obtener solo los registros únicos de la columna
+
+```{r}
+datos %>% distinct(continent) 
+```
+
+Cuando se trabaja con datos que poseen cadenas de texto, se puede combinar filter con otras funciones de otros paquetes, como por ejemplo: `stringer` uno más del ecosistema tidyverse.
+
+La función `str_detect` se utiliza para identificar si un patrón específico de texto está presente en una cadena de caracteres.
+
+```{r}
+library(stringr)
+# Filas donde la columna Provincia contiene la letra "a" en cualquier parte de su texto
+datos %>% filter(str_detect(country,"o"))
+# Filas donde Provincia comienza con la letra "C"
+datos %>% filter(str_detect(country,"^A"))
+# Filas en donde las cadenas terminen con la letra "a"
+datos %>% filter(str_detect(country,"s$"))
+```
+
+`select()` Permite obtener un subconjunto de datos solo con las variables (columnas) de interés.
+
+Seleccionar Columnas Específicas:
+```{r}
+datos %>% select(country, gdpPercap_1952, lifeExp_1952, pop_1952)
+```
+Excluir columnas:
+```{r}
+#Una
+datos %>% select(-continent)
+#Múltiples
+datos %>% select(-continent, -gdpPercap_1957)
+#Forma adicional
+datos %>% select(-c(continent, gdpPercap_1957))
+#Rango de columnas
+datos %>% select(country,gdpPercap_1957:gdpPercap_2007) 
+```
+
+Dentro de `select()` puedes utilizar otras funciones de ayuda
+
+```{r}
+#Columnas que inicien con "lifeExp"
+datos %>% select(country,starts_with("lifeExp"))
+
+#Seleccionar columnas que contengan "Gdp":
+datos %>% select(country, contains("Gdp"))
+
+#Seleccionar columnas que finalicen con "1997":
+datos %>% select(country, ends_with("1997"))
+```
+
+El orden de las variables tambien se establece con select(), así que si deseas colocar una columna al inicio de todas las demás, se puede usar:
+```{r}
+#Mueve la columna Provincia al principio del conjunto de datos, manteniendo todas las demás columnas en su orden original.
+datos %>% select(country,everything())
+```
+
+Para cambiar la posición de las columnas tambien se utiliza `relocate()`
+```{r}
+#La función relocate() por defecto coloca la columna especificada al inicio del conjunto de datos:
+datos %>% relocate(country)
+#Mover una Columna a una Posición Específica
+datos %>% relocate(c(lifeExp_1997, pop_1997),.before=gdpPercap_1952)
+#Caso 1
+#El argumento .before=gdpPercap_1952 indica que lifeExp_1997 debe ser colocada antes de gdpPercap_1952
+#Caso 2
+datos %>% relocate(c(lifeExp_1997, pop_1997),.after=gdpPercap_1952)
+#El argumento .after=gdpPercap_1952 indica que lifeExp_1997 debe ser colocada antes de gdpPercap_1952
+```
+
+`arrange()` se utiliza para ordenar las filas de un conjunto de datos
+
+```{r}
+#Orden ascendente
+datos %>% arrange(country)
+#Orden descendente
+datos %>% arrange(desc(gdpPercap_1952))
+#Ordenar por varias columnas
+datos %>% arrange(continent,desc(country))
+#Esta última linea indica que se ordenará de forma ascendente por la variable continent y luego ordenara de forma descendente por la variable country.
+
+#Nota: Al ser caracteres el orden es alfabetico
+```
+
+Aun tenemos unos verbos más que aprender, sin embargo, antes de ver los demás, me parece un buen momento para retomar un paso importante nombrano en los parrafos anteriores: tidy.
+
+En nuestro conjunto de datos, que actualmente presenta una estructura "ancha" con columnas separadas para cada año y cada indicador (como gdpPercap_1952, lifeExp_1952, etc.), vamos a realizar una transformación para adoptar un formato "largo" o "rectangular".  
+
+En el formato rectangular, cada fila representará una observación única para un país en un año específico, con columnas dedicadas para year, gdpPercap, lifeExp, y pop. 
+
+
+```{r}
+#install.packages("tidyr")
+library(tidyr)
+
+datos_pivot <- datos %>% 
+  pivot_longer(cols = -c(continent, country),
+                names_to="Indicador",
+                values_to = "Valor")  
+
+datos_pivot <- datos_pivot %>% separate(Indicador,c("Indicador","Año"),
+                         sep="_")
+```
+
+Probemos con otra forma:
+```{r}
+datos %>% pivot_longer(
+  cols= -c(continent, country),
+  names_to = c("Indicador","Año"),
+  names_sep = "_",
+  values_to = "Valor"
+) %>% view("pivot_pw")
+
+```
+
+Si quisiera revertir?
+```{r}
+datos_pivot %>% pivot_wider(names_from=c(Indicador,Año),values_from = Valor,names_sep=".")
+```
+
+
+Ahora que ya contamos con los datos en una estructura rectangular, podemos continuar con nuestra manipulación de datos.
+
+
+
